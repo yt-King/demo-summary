@@ -12,6 +12,7 @@
     <modules>
         <module>cglib-demo</module>
         <module>reflect-demo</module>
+        <module>exception-demo</module>
     </modules>
 
     <properties>
