@@ -3,7 +3,7 @@ package com.ytking;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Hello world!
+ * <a href="https://www.cnblogs.com/javastack/p/13596096.html">示例</a>
  */
 @Slf4j
 public class App {

@@ -15,6 +15,7 @@
         <module>exception-demo</module>
         <module>grpc-demo</module>
         <module>prometheus-demo</module>
+        <module>util-demo</module>
     </modules>
 
     <properties>
