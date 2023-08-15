@@ -16,6 +16,7 @@
         <module>grpc-demo</module>
         <module>prometheus-demo</module>
         <module>util-demo</module>
+        <module>arthas-demo</module>
     </modules>
 
     <properties>
@@ -29,7 +30,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.20</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
