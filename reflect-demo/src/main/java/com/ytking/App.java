@@ -16,14 +16,15 @@ public class App {
         //性能测试
         PerformanceTest performanceTest = new PerformanceTest();
         performanceTest.onCreate();
-        //类测试
-        classTest();
-        //构造器测试
-        constructTest();
-        //字段测试
-        fieldTest();
-        // 方法测试
-        methodTest();
+        performanceTest.onInvoke();
+//        //类测试
+//        classTest();
+//        //构造器测试
+//        constructTest();
+//        //字段测试
+//        fieldTest();
+//        // 方法测试
+//        methodTest();
     }
 
     private static void classTest() throws Exception {
