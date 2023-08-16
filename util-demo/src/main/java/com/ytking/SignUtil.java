@@ -25,16 +25,16 @@ import java.util.*;
 @Slf4j
 public class SignUtil {
     public static void main(String[] args) {
-        long time = System.currentTimeMillis()/1000;
+        long time = System.currentTimeMillis() / 1000;
         System.out.println(time);
         Map<String, Object> params = Map.of(
-                "uid", 35766725,
+                "uid", 1713130,
                 "key_id", "xcx64d056f30dab4",
                 "timestamp", time,
                 "key_secret", "083D694C1089F8C0D8803D7096076577"
         );
-        String sign = createSign(params);
-        System.out.println(sign);
+        Map<String, Object> sign = createSign(params);
+        log.info("sign:{}",sign);
     }
 
     /**
@@ -43,8 +43,9 @@ public class SignUtil {
      * @param map
      * @return
      */
-    private static String createSign(Map<String, Object> map) {
+    private static Map<String, Object> createSign(Map<String, Object> map) {
         String sign = "";
+        HashMap<String, Object> result = new HashMap<>(map);
         try {
             List<Map.Entry<String, Object>> infoIds = new ArrayList<>(map.entrySet());
             // 对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序）
@@ -58,14 +59,16 @@ public class SignUtil {
                     sb.append(key).append("=").append(val).append("&");
                 }
             }
-            String msg = sb.toString();
+            String msg = sb.substring(0, sb.length() - 1);
             log.info("================ascii===============" + msg);
             sign = getMD5Str(msg).toUpperCase();//MD5加密，toUpperCase()：大小写转换
+            result.put("sign",sign);
+            result.remove("key_secret");
             log.info("================signMD5加密===============" + sign);
         } catch (Exception e) {
-            return null;
+            log.error("加密失败：{}", (Object) e.getStackTrace());
         }
-        return sign;
+        return result;
     }
 
     public static String getMD5Str(String str) {
@@ -78,6 +81,6 @@ public class SignUtil {
         }
         //16是表示转换为16进制数
         assert digest != null;
-        return new BigInteger(1, digest).toString(10);
+        return new BigInteger(1, digest).toString(16);
     }
 }
