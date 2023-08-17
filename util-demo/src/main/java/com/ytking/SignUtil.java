@@ -1,12 +1,16 @@
 package com.ytking;
 
+import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
 import java.util.*;
+
+import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMAT;
 
 /**
  * @author yt
@@ -27,14 +31,27 @@ public class SignUtil {
     public static void main(String[] args) {
         long time = System.currentTimeMillis() / 1000;
         System.out.println(time);
-        Map<String, Object> params = Map.of(
+        Map<String, Object> params1 = Map.of(
                 "uid", 1713130,
                 "key_id", "xcx64d056f30dab4",
                 "timestamp", time,
                 "key_secret", "083D694C1089F8C0D8803D7096076577"
         );
-        Map<String, Object> sign = createSign(params);
-        log.info("sign:{}",sign);
+        Map<String, Object> sign1 = createSign(params1);
+        log.info("sign:{}", sign1);
+        Map<String, Object> params2 = Map.of(
+                "uid", 1713130,
+                "key_id", "xcx64d056f30dab4",
+                "timestamp", time,
+                "key_secret", "083D694C1089F8C0D8803D7096076577",
+                "create_time", DateUtil.format(new Date(), NORM_DATETIME_FORMAT),
+                "activity_type", 9,
+                "belong_type", 1,
+                "reward_type", 7,
+                "reward_log_id", "12dasg31dgv35yh12q3g1"
+        );
+        Map<String, Object> sign2 = createSign(params2);
+        log.info("sign:{}", sign2);
     }
 
     /**
@@ -61,8 +78,9 @@ public class SignUtil {
             }
             String msg = sb.substring(0, sb.length() - 1);
             log.info("================ascii===============" + msg);
-            sign = getMD5Str(msg).toUpperCase();//MD5加密，toUpperCase()：大小写转换
-            result.put("sign",sign);
+            //MD5加密，toUpperCase()：大小写转换
+            sign = getMD5Str(msg).toUpperCase();
+            result.put("sign", sign);
             result.remove("key_secret");
             log.info("================signMD5加密===============" + sign);
         } catch (Exception e) {
