@@ -1,9 +1,17 @@
 package com.ytking;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.httpclient.methods.PostMethod;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +38,23 @@ import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMAT;
 public class SignUtil {
     public static void main(String[] args) {
         long time = System.currentTimeMillis() / 1000;
-        System.out.println(time);
+        long newTime = System.currentTimeMillis();
+        System.out.println(time + "  " + newTime);
+        String appSecret = "d1579e0992064bdaba18739235625cce";
+        Map<String, Object> signParam = Map.of(
+                "uid", "1713130"
+        );
+        Map<String, Object> res = createSignByMiddle(signParam, appSecret);
+        log.info("res:{}", res);
+        Map<String, Object> params = Map.of(
+                "uid", "1713130",
+                "activeId", "64db335a4200050001d16b1e",
+                "requestTimestamp", newTime,
+                "rewardType", 8
+        );
+        Map<String, Object> signByMiddle = createSignByMiddle(params, appSecret);
+        log.info("signByMiddle:{}", signByMiddle);
+        doPost("https://sandbox.platform.moxigame.cn/k8s-pre/istio/grpc-gate/receptionist/isv/v1/checkReward", new JSONObject(signByMiddle));
         Map<String, Object> params1 = Map.of(
                 "uid", 1713130,
                 "key_id", "xcx64d056f30dab4",
@@ -48,10 +72,45 @@ public class SignUtil {
                 "activity_type", 9,
                 "belong_type", 1,
                 "reward_type", 7,
+                "protein", -5,
                 "reward_log_id", "12dasg31dgv35yh12q3g1"
         );
         Map<String, Object> sign2 = createSign(params2);
         log.info("sign:{}", sign2);
+    }
+
+    /**
+     * MD5加密(中台)
+     *
+     * @param map
+     * @return
+     */
+    private static Map<String, Object> createSignByMiddle(Map<String, Object> map, String secret) {
+        String sign = "";
+        HashMap<String, Object> result = new HashMap<>(map);
+        try {
+            List<Map.Entry<String, Object>> infoIds = new ArrayList<>(map.entrySet());
+            // 对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序）
+            infoIds.sort(Map.Entry.comparingByKey());
+            // 构造签名键值对的格式
+            StringBuilder sb = new StringBuilder();
+            for (Map.Entry<String, Object> item : infoIds) {
+                String key = item.getKey();
+                String val = String.valueOf(item.getValue());
+                if (!(Objects.equals(val, "") || val == null)) {
+                    sb.append(key).append("=").append(val).append("&");
+                }
+            }
+            String msg = sb.substring(0, sb.length() - 1) + secret;
+            log.info("================ascii===============" + msg);
+            //MD5加密
+            sign = getMD5Str(msg);
+            result.put("sign", sign);
+            log.info("================signMD5加密===============" + sign);
+        } catch (Exception e) {
+            log.error("加密失败：{}", (Object) e.getStackTrace());
+        }
+        return result;
     }
 
     /**
@@ -100,5 +159,24 @@ public class SignUtil {
         //16是表示转换为16进制数
         assert digest != null;
         return new BigInteger(1, digest).toString(16);
+    }
+
+    public static void doPost(String url, JSONObject json) {
+        final java.net.http.HttpClient clientSimple = HttpClient.newHttpClient();
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toJSONString()))
+                .build();
+
+        HttpResponse<String> send = null;
+        try {
+            send = clientSimple.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        log.info("send message:{}", send.body());
     }
 }
