@@ -50,11 +50,11 @@ public class SignUtil {
                 "uid", "1713130",
                 "activeId", "64db335a4200050001d16b1e",
                 "requestTimestamp", newTime,
-                "rewardType", 8
+                "sId", "c21f72FcO2La79G3D2Y85YD9"
         );
         Map<String, Object> signByMiddle = createSignByMiddle(params, appSecret);
         log.info("signByMiddle:{}", signByMiddle);
-        doPost("https://sandbox.platform.moxigame.cn/k8s-pre/istio/grpc-gate/receptionist/isv/v1/checkReward", new JSONObject(signByMiddle));
+//        doPost("https://sandbox.platform.moxigame.cn/k8s-pre/istio/grpc-gate/receptionist/isv/v1/checkReward", new JSONObject(signByMiddle));
         Map<String, Object> params1 = Map.of(
                 "uid", 1713130,
                 "key_id", "xcx64d056f30dab4",
@@ -63,7 +63,7 @@ public class SignUtil {
         );
         Map<String, Object> sign1 = createSign(params1);
         log.info("sign:{}", sign1);
-        Map<String, Object> params2 = Map.of(
+        Map<String, Object> params2 = new HashMap<>(Map.of(
                 "uid", 1713130,
                 "key_id", "xcx64d056f30dab4",
                 "timestamp", time,
@@ -71,12 +71,18 @@ public class SignUtil {
                 "create_time", DateUtil.format(new Date(), NORM_DATETIME_FORMAT),
                 "activity_type", 9,
                 "belong_type", 1,
-                "reward_type", 7,
-                "protein", -5,
-                "reward_log_id", "12dasg31dgv35yh12q3g1"
-        );
+                "reward_type", 5,
+                "reward_log_id", "c21f72FcO2La79G3D2Y85YD9"
+        ));
+        params2.put("protein", 10);
+//        params2.put("prize_id", 9152);
+//        params2.put("lng", 120.2);
+//        params2.put("lat", 30.3);
+//        params2.put("coupon_id", 8927);
+//        params2.put("coupon_activity_id", 1494);
         Map<String, Object> sign2 = createSign(params2);
         log.info("sign:{}", sign2);
+        doPost("http://bs.test.pailifan.com/xcx/open/send_game_reward", new JSONObject(sign2));
     }
 
     /**
@@ -177,6 +183,6 @@ public class SignUtil {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        log.info("send message:{}", send.body());
+        log.info("send message:{}", JSON.parse(send.body()));
     }
 }
