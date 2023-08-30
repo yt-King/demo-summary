@@ -50,6 +50,7 @@ public class SignUtil {
                 "uid", "1713130",
                 "activeId", "64db335a4200050001d16b1e",
                 "requestTimestamp", newTime,
+                "rewardType", 5,
                 "sId", "c21f72FcO2La79G3D2Y85YD9"
         );
         Map<String, Object> signByMiddle = createSignByMiddle(params, appSecret);
@@ -71,15 +72,15 @@ public class SignUtil {
                 "create_time", DateUtil.format(new Date(), NORM_DATETIME_FORMAT),
                 "activity_type", 9,
                 "belong_type", 1,
-                "reward_type", 5,
-                "reward_log_id", "c21f72FcO2La79G3D2Y85YD9"
+                "reward_type", 3,
+                "reward_log_id", "51e62cM5Z213R54f6eV9BXFD"
         ));
-        params2.put("protein", 10);
+//        params2.put("protein", 10);
 //        params2.put("prize_id", 9152);
-//        params2.put("lng", 120.2);
-//        params2.put("lat", 30.3);
-//        params2.put("coupon_id", 8927);
-//        params2.put("coupon_activity_id", 1494);
+        params2.put("lng", 120.2);
+        params2.put("lat", 30.3);
+        params2.put("coupon_id", 8927);
+        params2.put("coupon_activity_id", 1494);
         Map<String, Object> sign2 = createSign(params2);
         log.info("sign:{}", sign2);
         doPost("http://bs.test.pailifan.com/xcx/open/send_game_reward", new JSONObject(sign2));
@@ -137,6 +138,9 @@ public class SignUtil {
             for (Map.Entry<String, Object> item : infoIds) {
                 String key = item.getKey();
                 String val = String.valueOf(item.getValue());
+                if ((Objects.equals(key, "lng")) || (Objects.equals(key, "lat"))) {
+                    continue;
+                }
                 if (!(Objects.equals(val, "") || val == null)) {
                     sb.append(key).append("=").append(val).append("&");
                 }
