@@ -42,7 +42,7 @@ public class SignUtil {
         System.out.println(time + "  " + newTime);
         String appSecret = "d1579e0992064bdaba18739235625cce";
         Map<String, Object> signParam = Map.of(
-                "uid", "1713130"
+                "uid", "1712659"
         );
         Map<String, Object> res = createSignByMiddle(signParam, appSecret);
         log.info("res:{}", res);
@@ -159,16 +159,27 @@ public class SignUtil {
     }
 
     public static String getMD5Str(String str) {
-        byte[] digest = null;
+        String re = null;
+        byte encrypt[];
         try {
+            byte[] tem = str.getBytes();
             MessageDigest md5 = MessageDigest.getInstance("md5");
-            digest = md5.digest(str.getBytes(StandardCharsets.UTF_8));
+            md5.reset();
+            md5.update(tem);
+            encrypt = md5.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte t : encrypt) {
+                String s = Integer.toHexString(t & 0xFF);
+                if (s.length() == 1) {
+                    s = "0" + s;
+                }
+                sb.append(s);
+            }
+            re = sb.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        //16是表示转换为16进制数
-        assert digest != null;
-        return new BigInteger(1, digest).toString(16);
+        return re;
     }
 
     public static void doPost(String url, JSONObject json) {
