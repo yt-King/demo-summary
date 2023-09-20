@@ -17,6 +17,7 @@
         <module>prometheus-demo</module>
         <module>util-demo</module>
         <module>arthas-demo</module>
+        <module>caffine-demo</module>
     </modules>
 
     <properties>
