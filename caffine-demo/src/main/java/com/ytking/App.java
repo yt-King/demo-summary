@@ -1,16 +1,9 @@
 package com.ytking;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.CacheLoader;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.ytking.LRU.LruSegment;
 import com.ytking.TinyLFU.FrequencySketch;
 import com.ytking.TinyLFU.TinyLFU;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.time.temporal.Temporal;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Hello world!
@@ -30,11 +23,6 @@ public class App {
     }
 
     public static void test() {
-        //LRU
-        List<Character> keys = List.of('a', 'b', 'c', 'a', 'a', 'a', 'a', 'b', 'c', 'd');
-        LruSegment<String, String> lruSegment = new LruSegment<>(3);
-        keys.forEach(x -> lruSegment.put(String.valueOf(x), ""));
-        lruSegment.getAllk().forEach(System.out::println);//b、c、d
         //TinyLFU
         List<Character> keys1 = List.of('a', 'b', 'c', 'a', 'a', 'a', 'a', 'b', 'c', 'd');
         TinyLFU tinyLFU = new TinyLFU();
