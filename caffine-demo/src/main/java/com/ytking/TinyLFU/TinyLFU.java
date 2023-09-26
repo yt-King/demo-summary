@@ -8,16 +8,14 @@ import java.util.Random;
  * @package: com.ytking.TinyLFU
  * @className: TinyLFU
  * @date 2023/9/13
- * @description: TODO
+ * @description: TinyLFU实现
  */
 public class TinyLFU {
     //Count-Min Sketch的宽度，也就是哈希表的列数。它决定了用于存储计数的空间大小
     private int width;
     //Count-Min Sketch的深度，也就是哈希函数的数量。深度决定了哈希函数的数量，每个哈希函数生成一个不同的哈希位置，用于更新和查询计数。
     private int depth;
-    //DoorKeeper机制的阈值。仅当估计的计数超过此阈值时，元素才会被存储在Count-Min Sketch中
-    private int threshold;
-    // 使用long数组存储计数器，每个long存储16个计数器
+    //使用long数组存储计数器，每个long存储16个计数器
     private long[][] sketch;
     //一个数组，包含深度个哈希函数的随机种子，用于生成哈希位置
     private int[] hashFunctions;
@@ -27,13 +25,12 @@ public class TinyLFU {
     private int totalCount;
 
     public TinyLFU() {
-        this(16, 4, 1, 100);
+        this(16, 4, 100);
     }
 
-    public TinyLFU(int width, int depth, int threshold, int totalCount) {
+    public TinyLFU(int width, int depth, int totalCount) {
         this.width = width;
         this.depth = depth;
-        this.threshold = threshold;
         // 使用long数组存储计数器，每个long存储16个计数器
         // 在Caffeine的实现中，会先创建一个Long类型的数组，数组的大小为 2的幂次大小。
         // Caffeine将64位的Long类型划分为4段，每段16位，用于存储4种hash算法对应的数据访问频率计数。
