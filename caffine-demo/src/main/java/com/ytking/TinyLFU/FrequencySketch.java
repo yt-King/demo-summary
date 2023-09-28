@@ -28,7 +28,7 @@ public class FrequencySketch<E> {
      * 以确保它可以在给定缓存最大大小的情况下准确估计元素的频率。
      * 调整大小时此操作会忘记所有先前的计数。
      *
-     * @param maximumSize the maximum size of the cache
+     * @param maximumSize 缓存容量的最大值
      */
     public void ensureCapacity(@NonNegative long maximumSize) {
         int maximum = (int) Math.min(maximumSize, Integer.MAX_VALUE >>> 1);
@@ -79,7 +79,7 @@ public class FrequencySketch<E> {
      * 如果元素的受欢迎程度不超过最大值 (15)，则增加该元素的出现次数。
      * 当观察到的总记录次数超过阈值时，所有元素的流行度将定期进行下采样。此过程提供了频率老化，以允许过期的长期条目逐渐消失。
      *
-     * @param e the element to add
+     * @param e 需要添加的元素
      */
     public void increment(E e) {
         if (isNotInitialized()) {
@@ -135,10 +135,10 @@ public class FrequencySketch<E> {
      * <p>
      * i – 表索引，table的下标
      * j – 要递增的计数器
-     * @return if incremented
+     * @return 是否增加（如果到15上限值就会返回false）
      */
     boolean incrementAt(int i, int j) {
-        //<<2相当于 乘以4，原来j表示long中区域，范围在0-16，左移后范围在0-64，表示的就是一个long中对应的区域起始位置
+        //<<2相当于 乘以4，j表示long中的区域，范围在0-15，左移（乘以4）后范围在0-60，表示的就是一个long中对应的区域起始位置
         int offset = j << 2;
         //将 1111 左移对应的偏移量作为掩码
         long mask = (0xfL << offset);
@@ -157,7 +157,7 @@ public class FrequencySketch<E> {
         int count = 0;
         for (int i = 0; i < table.length; i++) {
             count += Long.bitCount(table[i] & ONE_MASK);
-            // & RESET_MASK的原因个人推测可能是想要控制减半后的最大值为7，具体原因暂未知晓
+            // 一个Long记录了16个key的频率，Long除以2以后& RESET_MASK（16个十六进制的7组成）保证了每个key的频率不超过7
             table[i] = (table[i] >>> 1) & RESET_MASK;
         }
         size = (size - (count >>> 2)) >>> 1;
