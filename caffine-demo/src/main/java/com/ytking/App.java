@@ -1,7 +1,7 @@
 package com.ytking;
 
+import com.ytking.TinyLFU.CountMinSketch;
 import com.ytking.TinyLFU.FrequencySketch;
-import com.ytking.TinyLFU.TinyLFU;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class App {
     public static void test() {
         //TinyLFU
         List<Character> keys1 = List.of('a', 'b', 'c', 'a', 'a', 'a', 'a', 'b', 'c', 'd');
-        TinyLFU tinyLFU = new TinyLFU();
+        CountMinSketch tinyLFU = new CountMinSketch();
         keys1.forEach(x -> tinyLFU.update(String.valueOf(x)));
         List<Character> res = List.of('a', 'b', 'c', 'd');
         res.forEach(x -> System.out.println(tinyLFU.estimate(String.valueOf(x))));
