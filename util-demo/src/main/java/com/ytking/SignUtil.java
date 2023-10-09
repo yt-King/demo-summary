@@ -42,7 +42,7 @@ public class SignUtil {
         System.out.println(time + "  " + newTime);
         String appSecret = "d1579e0992064bdaba18739235625cce";
         Map<String, Object> signParam = Map.of(
-                "uid", "1713130"
+                "uid", "1712659"
         );
         Map<String, Object> res = createSignByMiddle(signParam, appSecret);
         log.info("res:{}", res);
@@ -50,6 +50,7 @@ public class SignUtil {
                 "uid", "1713130",
                 "activeId", "64db335a4200050001d16b1e",
                 "requestTimestamp", newTime,
+                "rewardType", 5,
                 "sId", "c21f72FcO2La79G3D2Y85YD9"
         );
         Map<String, Object> signByMiddle = createSignByMiddle(params, appSecret);
@@ -71,15 +72,15 @@ public class SignUtil {
                 "create_time", DateUtil.format(new Date(), NORM_DATETIME_FORMAT),
                 "activity_type", 9,
                 "belong_type", 1,
-                "reward_type", 5,
-                "reward_log_id", "c21f72FcO2La79G3D2Y85YD9"
+                "reward_type", 3,
+                "reward_log_id", "51e62cM5Z213R54f6eV9BXFD"
         ));
-        params2.put("protein", 10);
+//        params2.put("protein", 10);
 //        params2.put("prize_id", 9152);
-//        params2.put("lng", 120.2);
-//        params2.put("lat", 30.3);
-//        params2.put("coupon_id", 8927);
-//        params2.put("coupon_activity_id", 1494);
+        params2.put("lng", 120.2);
+        params2.put("lat", 30.3);
+        params2.put("coupon_id", 8927);
+        params2.put("coupon_activity_id", 1494);
         Map<String, Object> sign2 = createSign(params2);
         log.info("sign:{}", sign2);
         doPost("http://bs.test.pailifan.com/xcx/open/send_game_reward", new JSONObject(sign2));
@@ -137,6 +138,9 @@ public class SignUtil {
             for (Map.Entry<String, Object> item : infoIds) {
                 String key = item.getKey();
                 String val = String.valueOf(item.getValue());
+                if ((Objects.equals(key, "lng")) || (Objects.equals(key, "lat"))) {
+                    continue;
+                }
                 if (!(Objects.equals(val, "") || val == null)) {
                     sb.append(key).append("=").append(val).append("&");
                 }
@@ -155,16 +159,27 @@ public class SignUtil {
     }
 
     public static String getMD5Str(String str) {
-        byte[] digest = null;
+        String re = null;
+        byte encrypt[];
         try {
+            byte[] tem = str.getBytes();
             MessageDigest md5 = MessageDigest.getInstance("md5");
-            digest = md5.digest(str.getBytes(StandardCharsets.UTF_8));
+            md5.reset();
+            md5.update(tem);
+            encrypt = md5.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte t : encrypt) {
+                String s = Integer.toHexString(t & 0xFF);
+                if (s.length() == 1) {
+                    s = "0" + s;
+                }
+                sb.append(s);
+            }
+            re = sb.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        //16是表示转换为16进制数
-        assert digest != null;
-        return new BigInteger(1, digest).toString(16);
+        return re;
     }
 
     public static void doPost(String url, JSONObject json) {
