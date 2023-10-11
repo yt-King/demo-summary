@@ -39,7 +39,7 @@ public class CryptoUtils {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, new IvParameterSpec(ivBytes));
 
-        byte[] encryptedBytes = cipher.doFinal(input.getBytes("UTF-8"));
+        byte[] encryptedBytes = cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
         return Base64.encodeBase64String(encryptedBytes);
     }
 
