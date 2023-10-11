@@ -10,7 +10,7 @@ import java.util.Random;
  * @date 2023/9/13
  * @description: TinyLFU实现
  */
-public class TinyLFU {
+public class CountMinSketch {
     //Count-Min Sketch的宽度，也就是哈希表的列数。它决定了用于存储计数的空间大小
     private int width;
     //Count-Min Sketch的深度，也就是哈希函数的数量。深度决定了哈希函数的数量，每个哈希函数生成一个不同的哈希位置，用于更新和查询计数。
@@ -24,11 +24,11 @@ public class TinyLFU {
     //保鲜机制触发阈值
     private int totalCount;
 
-    public TinyLFU() {
+    public CountMinSketch() {
         this(16, 4, 100);
     }
 
-    public TinyLFU(int width, int depth, int totalCount) {
+    public CountMinSketch(int width, int depth, int totalCount) {
         this.width = width;
         this.depth = depth;
         // 使用long数组存储计数器，每个long存储16个计数器
