@@ -1,5 +1,7 @@
 package com.ytking;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.ytking.TinyLFU.CountMinSketch;
 import com.ytking.TinyLFU.FrequencySketch;
 
@@ -10,6 +12,8 @@ import java.util.List;
  */
 public class App {
     public static void main(String[] args) {
+        Cache<Object, Object> cache = Caffeine.newBuilder().maximumSize(100).build();
+        cache.put("asd","asd");
         test();
         frequenceTest();
     }

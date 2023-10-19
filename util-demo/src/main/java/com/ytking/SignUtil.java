@@ -4,10 +4,9 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,7 +14,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.util.*;
 
 import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMAT;
@@ -83,7 +81,21 @@ public class SignUtil {
         params2.put("coupon_activity_id", 1494);
         Map<String, Object> sign2 = createSign(params2);
         log.info("sign:{}", sign2);
-        doPost("http://bs.test.pailifan.com/xcx/open/send_game_reward", new JSONObject(sign2));
+//        doPost("http://bs.test.pailifan.com/xcx/open/send_game_reward", new JSONObject(sign2));
+        //长虹测试
+        String url1 = "gw/applet/hongkeCoupon/receiptHongkeCouponForActivity";
+        String url2 = "gw/sys/hongkeCoupon/couponDataListPage";
+        String url3 = "gw/point/api/v1/integral/trade?method=grant";
+        Map<String, Object> map1 = Map.of("couponId", 181, "type", 4, "unionId", "ojeWR0hJEM4LHv43XkvrxVOE1R9M");
+        Map<String, Object> map2 = Map.of("useLocation", 3, "pageNum", 1, "pageSize", 10);
+        Map<String, Object> map3 = Map.of(
+                "phone", "18380438391",
+                "appId", "78c05e83d8f84d93aaae2ad41d48181d1697685425058",
+                "remarks", "积分发放",
+                "code", "102",
+                "integral", 1
+        );
+//        doPostByChanghong(url3, new JSONObject(map3));
     }
 
     /**
@@ -118,6 +130,62 @@ public class SignUtil {
             log.error("加密失败：{}", (Object) e.getStackTrace());
         }
         return result;
+    }
+
+    /**
+     * MD5加密(长虹)
+     * 生成SHA1签名，该签名为不可逆签名，仅用于判断是否是正确的数据来源
+     *
+     * @param secret    接入方密钥
+     * @param timestamp 时间戳
+     * @param nonce     随机字母
+     * @param encrypt   加密数据(appName的base64)
+     * @return 签名字符串
+     */
+    public static String createSignByChanghong(String secret, String timestamp, String nonce, String encrypt) {
+        // 先做字符排序
+        String[] array = new String[]{secret, timestamp, nonce, encrypt};
+        StringBuilder sb = new StringBuilder();
+        // 字符串排序
+        Arrays.sort(array);
+        for (int i = 0; i < 4; i++) {
+            sb.append(array[i]);
+        }
+        String str = sb.toString();
+        // sha1 一次
+        byte[] dis = DigestUtils.sha1(str.getBytes());
+        // sha1 hex 一次
+        return DigestUtils.sha1Hex(dis);
+    }
+
+    public static void doPostByChanghong(String url, JSONObject json) {
+        String timestamp = System.currentTimeMillis() + "";
+        final java.net.http.HttpClient clientSimple = HttpClient.newHttpClient();
+        String nonce = "93";
+        //接入方名称
+        String appName = "摩西";
+        //接入方key
+        String appCode = "810";
+        //接入方密钥
+        String secret = "81dad2548f2849ba8a5c455860fb09bb";
+        String encrypt = Base64.getEncoder().encodeToString(appName.getBytes(StandardCharsets.UTF_8));
+        String signature = createSignByChanghong(secret, timestamp, nonce, encrypt);
+        url = "https://devhongke.changhong.com/" + url + (url.contains("?") ? "&" : "?") + "encrypt="
+                + encrypt + "&tokenCode=" + appCode + "&nonce=" + nonce + "&timestamp=" + timestamp + "&signature=" + signature;
+        System.out.println("url:" + url);
+        System.out.println("params:" + json.toJSONString());
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toJSONString()))
+                .build();
+        HttpResponse<String> send;
+        try {
+            send = clientSimple.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        log.info("send message:{}", JSON.parse(send.body()));
     }
 
     /**
