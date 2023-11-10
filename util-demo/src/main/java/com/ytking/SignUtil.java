@@ -86,7 +86,8 @@ public class SignUtil {
         String url1 = "gw/applet/hongkeCoupon/receiptHongkeCouponForActivity";
         String url2 = "gw/sys/hongkeCoupon/couponDataListPage";
         String url3 = "gw/point/api/v1/integral/trade?method=grant";
-        Map<String, Object> map1 = Map.of("couponId", 181, "type", 4, "unionId", "ojeWR0hJEM4LHv43XkvrxVOE1R9M");
+        String url4 = "gw/applet/api/appletForeign/queryIsSubWxOffice?unionId=ojeWR0rlY2N3VqGYP2fxLfe7BIog";
+        Map<String, Object> map1 = Map.of("couponId", 181, "type", 4, "unionId", "ojeWR0rlY2N3VqGYP2fxLfe7BIog");
         Map<String, Object> map2 = Map.of("useLocation", 3, "pageNum", 1, "pageSize", 10);
         Map<String, Object> map3 = Map.of(
                 "phone", "18380438391",
@@ -95,7 +96,7 @@ public class SignUtil {
                 "code", "102",
                 "integral", 1
         );
-//        doPostByChanghong(url3, new JSONObject(map3));
+        doPostOrGetByChanghong(url4, new JSONObject(), "get");
     }
 
     /**
@@ -158,7 +159,7 @@ public class SignUtil {
         return DigestUtils.sha1Hex(dis);
     }
 
-    public static void doPostByChanghong(String url, JSONObject json) {
+    public static void doPostOrGetByChanghong(String url, JSONObject json, String type) {
         String timestamp = System.currentTimeMillis() + "";
         final java.net.http.HttpClient clientSimple = HttpClient.newHttpClient();
         String nonce = "93";
@@ -174,11 +175,10 @@ public class SignUtil {
                 + encrypt + "&tokenCode=" + appCode + "&nonce=" + nonce + "&timestamp=" + timestamp + "&signature=" + signature;
         System.out.println("url:" + url);
         System.out.println("params:" + json.toJSONString());
-        var request = HttpRequest.newBuilder()
+        HttpRequest.Builder header = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json.toJSONString()))
-                .build();
+                .header("Content-Type", "application/json");
+        HttpRequest request = "get".equals(type) ? header.GET().build() : header.POST(HttpRequest.BodyPublishers.ofString(json.toJSONString())).build();
         HttpResponse<String> send;
         try {
             send = clientSimple.send(request, HttpResponse.BodyHandlers.ofString());
