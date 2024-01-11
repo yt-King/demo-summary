@@ -25,25 +25,27 @@ public class App {
 //        log.info("-----------------------------");
 //        evictionByTime();
 //        log.info("-----------------------------");
-        evictionByConfig();
+//        evictionByReference();
 //        log.info("-----------------------------");
-//        demo();
+//        evictionByConfig();
 //        log.info("-----------------------------");
-//        manualLoading();
-//        log.info("-----------------------------");
-//        autoLoading();
-//        log.info("-----------------------------");
-//        ascManualLoading();
-//        log.info("-----------------------------");
-//        ascAutoLoading();
-//        log.info("-----------------------------");
-//        evictionBySize();
-//        log.info("-----------------------------");
-//        tinyLFUTest();
-//        log.info("-----------------------------");
-//        frequenceTest();
-//        log.info("-----------------------------");
-//        refreshTest();
+        demo();
+        log.info("-----------------------------");
+        manualLoading();
+        log.info("-----------------------------");
+        autoLoading();
+        log.info("-----------------------------");
+        ascManualLoading();
+        log.info("-----------------------------");
+        ascAutoLoading();
+        log.info("-----------------------------");
+        evictionBySize();
+        log.info("-----------------------------");
+        tinyLFUTest();
+        log.info("-----------------------------");
+        frequenceTest();
+        log.info("-----------------------------");
+        refreshTest();
     }
 
     public static void demo() {
@@ -87,7 +89,6 @@ public class App {
         //添加值
         cache.put("name", "ytKing");
         cache.put("key", "NB!");
-
         //获取值
         String value = cache.getIfPresent("name");
         System.out.println("value = " + value);
@@ -229,6 +230,24 @@ public class App {
             Thread.sleep(time);
             System.out.println("sleep " + time + " ms,and Data for key1: " + cacheAfterAccess.getIfPresent("key1"));
         }
+    }
+
+    //基于引用驱逐
+    public static void evictionByReference() {
+        // 创建一个 Caffeine 缓存，在最后一次写入缓存后开始计时，在指定的时间后过期
+        Cache<String, String> cacheByReference = Caffeine.newBuilder()
+                .build();
+        String key1 = "123";
+        cacheByReference.put(key1, "value1");
+        System.out.println(cacheByReference.getIfPresent(key1));
+        String key2 = new String("123");
+        System.out.println("key1.equals(key2) ： " + key1.equals(key2));
+        System.out.println("key1==key2 ： " + (key1 == key2));
+        System.out.println(cacheByReference.getIfPresent(key2));
+        //value1
+        //key1.equals(key2) ： true
+        //key1==key2 ： false
+        //null
     }
 
     //自定义驱逐
