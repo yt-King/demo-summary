@@ -18,35 +18,34 @@ public class GuMingApi {
     static String aesKey = "fhbbbf8a0fkkhnx7";
     static String appKey = "test_moxi";
     static String appSecret = "b962045bd4308fd3dd1074fc";
-    static String aesUserId = "b407b165b213b4595f90959aa7d7c2ee177ac952251891b98244b1de1077ea69";
+    static String aesUserId = "d0c0a6c4c96a2e6d960d44fb9183fde908caf42b263a21c7be1e32707076ca63";
 
     public static void main(String[] args) {
-        String asd = AesUtils.encrypt("asd", aesKey);
-        String res = AesUtils.decrypt("Lok6ie1InVKR7fTtnQcfUwRzhhBWxwTC55s1di0f7xEP7GzJjD0yDtn3IPc0I2pPsNFI9ne6AoLOfH2c4V7g912NtDw0b7slmrBKe1e9qcUF9TnaoQkuc8e8WH9oK8ym", aesKey);
-        log.info(res);
-//        login(aesUserId);
-//        sendBenefit();
+        login();
+        sendPacket();
+        sendBenefit();
     }
 
-    public static void login(String code) {
-        JSONObject res = post("/moxi/member/info", Map.of("aesUserId", aesUserId));
-//        String uid = AesUtils.decrypt(code, aesKey);
-//        log.info(res.toJSONString());
+    public static void login() {
+        String res = post("/moxi/member/info", Map.of("aesUserId", aesUserId));
+        String decrypt = AesUtils.decrypt(res, aesKey);
+        log.info(decrypt);
+    }
+
+    public static void sendPacket() {
+        String res = post("/moxi/packet/cover", Map.of("aesUserId", aesUserId));
+        String decrypt = AesUtils.decrypt(res, aesKey);
+        log.info(decrypt);
     }
 
     public static void sendBenefit() {
-        JSONObject res = null;
-//        res = post("/moxi/packet/cover", Map.of("aesUserId", aesUserId));
-        String uniqueId = aesUserId + "hbfm" + System.currentTimeMillis() / 100000;
-        res = post("/coupon/receive/v2", Map.of("aesUserId", aesUserId, "key", "??", "orderId", uniqueId, "codeType", "USERID"));
-        log.info(res.toJSONString());
+        String uniqueId = "yhq1" + System.currentTimeMillis() / 100000;
+        String res = post("/coupon/receive/v2", Map.of("aesUserId", aesUserId, "key", "1745281116294488065", "orderId", uniqueId, "codeType", "USERID"));
+        String decrypt = AesUtils.decrypt(JSON.parseObject(res).getString("data"), aesKey);
+        log.info(decrypt);
     }
 
-//    public boolean queryUserIsFavorFans(UserContext userContext) throws Exception {
-//        return post("/moxi/follow/account", Map.of("aesUserId", userContext.getUserExt().getAnonymousId())).getBoolean("followAccount");
-//    }
-
-    private static JSONObject post(String uri, Map<String, Object> params) {
+    private static String post(String uri, Map<String, Object> params) {
         String time = String.valueOf(System.currentTimeMillis());
         UrlBuilder url = UrlBuilder.of(address + uri);
         HttpRequest client = new HttpRequest(url);
@@ -59,8 +58,15 @@ public class GuMingApi {
         client.body(param);
         String body = client.execute().body();
         log.info("请求url：" + url);
-        log.info("参数：" + param);
+        log.info("aesKey：" + aesKey);
+        log.info("加密参数：" + JSONUtil.toJsonStr(params));
+        log.info("请求参数：" + param);
         log.info("请求结果：" + body);
-        return JSON.parseObject(body);
+        JSONObject res = JSON.parseObject(client.execute().body());
+        if (res.getInteger("code") != 0) {
+            log.error("接口调用失败：{}", res);
+            throw new RuntimeException("接口调用失败");
+        }
+        return res.getString("data");
     }
 }
