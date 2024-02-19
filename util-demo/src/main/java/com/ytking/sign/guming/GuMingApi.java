@@ -14,16 +14,16 @@ import java.util.Map;
 
 @Slf4j
 public class GuMingApi {
-    static String address = "http://oapi.test1.iguming.net/gapi/newton-open/newton/open";
-    static String aesKey = "fhbbbf8a0fkkhnx7";
-    static String appKey = "test_moxi";
-    static String appSecret = "b962045bd4308fd3dd1074fc";
-    static String aesUserId = "d0c0a6c4c96a2e6d960d44fb9183fde908caf42b263a21c7be1e32707076ca63";
+    static String address = "https://oapi.gumingnc.com/gapi/newton-open/newton/open";
+    static String aesKey = "7h5r20srrffghual";
+    static String appKey = "moxi";
+    static String appSecret = "j5ymloafr6v2s3v81r6e5b5k765jo0it";
+    static String aesUserId = "f575a63a76586025ea29239bd319e9ea13cf1bbfc411e7b14992731a4bacb2b7";
 
     public static void main(String[] args) {
         login();
-        sendPacket();
-        sendBenefit();
+//        sendPacket();
+//        sendBenefit();
     }
 
     public static void login() {
@@ -40,7 +40,7 @@ public class GuMingApi {
 
     public static void sendBenefit() {
         String uniqueId = "yhq1" + System.currentTimeMillis() / 100000;
-        String res = post("/coupon/receive/v2", Map.of("aesUserId", aesUserId, "key", "1745281116294488065", "orderId", uniqueId, "codeType", "USERID"));
+        String res = post("/coupon/receive/v2", Map.of("aesUserId", aesUserId, "key", "1750407687836823553", "orderId", uniqueId, "codeType", "USERID"));
         String decrypt = AesUtils.decrypt(JSON.parseObject(res).getString("data"), aesKey);
         log.info(decrypt);
     }

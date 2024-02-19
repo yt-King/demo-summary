@@ -35,6 +35,7 @@ import static cn.hutool.core.date.DatePattern.NORM_DATETIME_FORMAT;
 @Slf4j
 public class SignUtil {
     public static void main(String[] args) {
+        testSrvUrl();
         long time = System.currentTimeMillis() / 1000;
         long newTime = System.currentTimeMillis();
         System.out.println(time + "  " + newTime);
@@ -96,7 +97,7 @@ public class SignUtil {
                 "code", "102",
                 "integral", 1
         );
-        doPostOrGetByChanghong(url4, new JSONObject(), "get");
+//        doPostOrGetByChanghong(url4, new JSONObject(), "get");
     }
 
     /**
@@ -248,6 +249,18 @@ public class SignUtil {
             e.printStackTrace();
         }
         return re;
+    }
+
+    public static void testSrvUrl() {
+        long time = System.currentTimeMillis();
+        String appSecret = "f844013cdaac40398804102c9521346f";
+        Map<String, Object> signParam = Map.of(
+                "sActiveId", "65b74d7f6771b100017e0c79", "roleId", "123","requestTimestamp",time,"appid","msv_6dd76c9a1ed14f80","opType","add","opValue",10,"taskType","58"
+        );
+        log.info("加密前参数："+signParam);
+        Map<String, Object> res = createSignByMiddle(signParam, appSecret);
+        log.info("加密后参数："+res);
+        doPost("https://sandbox.platform.moxigame.cn/k8s-pre/istio/grpc-gate/task/srv/v1/doEventTaskByType", new JSONObject(res));
     }
 
     public static void doPost(String url, JSONObject json) {
